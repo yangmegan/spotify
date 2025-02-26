@@ -1,0 +1,32 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib.font_manager as fm
+
+# font
+lib_font = fm.FontProperties(family="Liberation Sans")
+
+# kde plot
+plt.figure(figsize=(8, 5), facecolor="white")
+sns.set_style("white")
+sns.kdeplot(df["level of Basic"], fill=True, color="#FF69B4", alpha=0.7)
+
+# details
+plt.xlabel("spotify popularity score", fontproperties=lib_font, fontsize=10, color="black")
+plt.ylabel("density", fontproperties=lib_font, fontsize=10, color="black")
+plt.title("how mainstream are the songs you've been listening to?", fontproperties=lib_font, fontsize=12, color="black")
+plt.xlim(0, 100)  
+plt.xticks(range(0, 125, 25), fontproperties=lib_font, fontsize=12, color="black");  
+plt.yticks([])  # bye y axis
+for spine in plt.gca().spines.values(): # no borders
+    spine.set_visible(False)
+
+legend_text = """
+interpretation:
+80-100: mainstream, viral hits, etc.
+40-79: popular but not overplayed, balanced mix
+0-39: underground, niche, indie, classical
+"""
+plt.text(50, -0.003, legend_text, fontproperties=lib_font, fontsize=10, color="black", 
+         ha="center", va="top", bbox=dict(facecolor="white", edgecolor="none", boxstyle="round,pad=0.5"))
+
+plt.show()
