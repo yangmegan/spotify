@@ -1,0 +1,69 @@
+!pip install spotipy pandas matplotlib
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+import pandas as pd
+import matplotlib.pyplot as plt
+import urllib.parse as urlparse
+
+# spotify developer details
+SPOTIFY_CLIENT_ID = "clientID"
+SPOTIFY_CLIENT_SECRET = "clientSecret"
+SPOTIFY_REDIRECT_URI = "https://www.google.com"
+
+# open spotify login
+sp_oauth = SpotifyOAuth(
+    client_id=SPOTIFY_CLIENT_ID,
+    client_secret=SPOTIFY_CLIENT_SECRET,
+    redirect_uri=SPOTIFY_REDIRECT_URI,
+    scope="user-top-read playlist-modify-public playlist-modify-private", 
+    open_browser=True
+)
+
+# auth URL
+auth_url = sp_oauth.get_authorize_url()
+print(f"click here to log in: {auth_url}")
+auth_response = input("paste the URL here:")
+
+# extract the auth code manually
+parsed_url = urlparse.urlparse(auth_response)
+auth_code = urlparse.parse_qs(parsed_url.query).get("code", [None])[0]
+
+# check if auth code was extracted successfully
+if not auth_code:
+    raise ValueError("🚨🚨error🚨🚨 double-check you pasted the full URL")
+
+# get access token using the extracted auth code
+token_info = sp_oauth.get_access_token(auth_code)
+sp = spotipy.Spotify(auth=token_info['access_token'])
+
+print("authentication success! you can now access your spotify data 😎")
+
+# fetch top 50 most played songs
+time_range = "long_term"
+top_tracks = sp.current_user_top_tracks(limit=50, time_range=time_range)
+
+# create df
+track_list = []
+for track in top_tracks['items']:
+    track_list.append({
+        "song": track["name"],
+        "artist": ", ".join(artist["name"] for artist in track["artists"]),
+        "level of Basic": track["popularity"] # spotify doesn't give play counts sigh
+    })
+df = pd.DataFrame(track_list)
+
+# display df
+from IPython.display import display
+print("✨ your biggest hits lately ✨")
+display(df)
+# get spotify user id
+user_id = sp.me()["id"]
+
+# create playlist
+playlist_name = "wrapped 💫"
+playlist_description = "most played songs in the last year-ish"
+playlist = sp.user_playlist_create(user=user_id, name=playlist_name, public=True, description=playlist_description)
+track_uris = [track["uri"] for track in top_tracks["items"]]
+sp.playlist_add_items(playlist_id=playlist["id"], items=track_uris)
+
+print(f"your playlist '{playlist_name}' has been created! check spotify 💅🏼")
