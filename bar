@@ -1,0 +1,25 @@
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+
+# inclusive font
+font_path = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
+custom_font = fm.FontProperties(fname=font_path)
+plt.rcParams["font.family"] = custom_font.get_name()
+plt.rcParams["axes.unicode_minus"] = False
+plt.rcParams["xtick.labelsize"] = 12
+plt.rcParams["ytick.labelsize"] = 12
+
+# plot
+df_sorted = df.sort_values(by="level of Basic", ascending=True).head(10)
+plt.figure(figsize=(10, 5))
+plt.barh(df_sorted["song"], df_sorted["level of Basic"], color="#FF69B4")
+
+# details
+plt.xlabel("score", fontproperties=custom_font)
+plt.title("your top 10 least mainstream songs (according to spotify)", fontproperties=custom_font)
+plt.xlim(0, 100)
+plt.xticks(fontproperties=custom_font)
+plt.yticks(fontproperties=custom_font)
+plt.gca().invert_yaxis()
+
+plt.show()
