@@ -1,4 +1,4 @@
-### spotify wrapped (without the wonky AI)
+### spotify wrapped 2.0
 
 #### 📌 features
 - uses spotify API to fetch most frequently played songs
